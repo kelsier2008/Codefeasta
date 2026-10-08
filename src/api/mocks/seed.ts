@@ -16,7 +16,6 @@ import type {
   Detector,
   FindingStatus,
   MatchPair,
-  MatchingConfig,
   ProposedRule,
   Report,
   Rule,
@@ -31,6 +30,7 @@ import type {
 } from "../types";
 import { vendorSimilarity } from "@/lib/fuzzy";
 import { noisyOr } from "@/lib/risk";
+import { DEFAULT_CONFIG } from "@/lib/matching";
 
 /* ------------------------------------------------------------------ */
 /* RNG                                                                 */
@@ -78,11 +78,6 @@ export const ACCOUNTS = [
   { id: "acc_hdfc", name: "HDFC Bank Current A/c", bank: "HDFC Bank", last4: "4521", parserTemplate: "HDFC PDF v3", currency: "INR", opening: "4825310.45", file: "HDFC_Statement_Sep2026.pdf" },
   { id: "acc_icici", name: "ICICI Bank Current A/c", bank: "ICICI Bank", last4: "8834", parserTemplate: "ICICI CSV (iBizz)", currency: "INR", opening: "1240880.00", file: "ICICI_Statement_Sep2026.csv" },
 ] as const;
-
-export const ACCOUNT_LABEL: Record<string, string> = {
-  acc_hdfc: "HDFC ••4521",
-  acc_icici: "ICICI ••8834",
-};
 
 export const USERS = {
   me: "Priya Sharma",
@@ -252,35 +247,7 @@ export interface RunRecord {
   sim?: { startedAt: number; timeline: { stage: string; at: number; ms: number }[]; finalized: boolean; events: (RunEvent & { at: number })[] };
 }
 
-export const DEFAULT_CONFIG: MatchingConfig = {
-  preset: "balanced",
-  dateToleranceDays: 3,
-  amountMode: "tolerance",
-  amountTolerance: "1.00",
-  vendorThreshold: 0.85,
-  referenceMatching: true,
-  multiPass: true,
-  passes: [
-    { name: "P1 · Exact", dateToleranceDays: 0, amountTolerance: "0.00", vendorThreshold: 0.9, confidence: 0.97 },
-    { name: "P2 · Date ±3d", dateToleranceDays: 3, amountTolerance: "1.00", vendorThreshold: 0.85, confidence: 0.92 },
-    { name: "P3 · Fuzzy vendor", dateToleranceDays: 3, amountTolerance: "1.00", vendorThreshold: 0.55, confidence: 0.8 },
-    { name: "P4 · Group sum", dateToleranceDays: 2, amountTolerance: "0.00", vendorThreshold: 0.8, confidence: 0.9 },
-  ],
-  highValueThreshold: "500000.00",
-  approvalLimit: "50000.00",
-  detectors: {
-    duplicate_detector: true,
-    approval_limit: true,
-    new_vendor: true,
-    weekend_payment: true,
-    high_value: true,
-    period_boundary: true,
-    amount_outlier: true,
-    round_amount: true,
-    no_counterpart: true,
-  },
-  maskAccountNumbers: true,
-};
+export { DEFAULT_CONFIG };
 
 export const STAGE_NAMES = ["Ingest", "Normalize", "Match P1", "Match P2", "Match P3", "Detect", "AI Investigate", "Verify", "Done"];
 

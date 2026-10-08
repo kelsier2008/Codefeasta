@@ -4,7 +4,7 @@
  * underlying records on every read, so decisions are reflected immediately.
  */
 import Big from "big.js";
-import { differenceInCalendarDays, parseISO } from "date-fns";
+import { differenceInCalendarDays, format, parseISO } from "date-fns";
 import type {
   AuditEntry,
   Comment,
@@ -148,7 +148,7 @@ export function createSimulatedRun(input: { period: string; accounts: string[]; 
   const rec: RunRecord = {
     run: {
       id,
-      name: input.name || `${input.period} — ${input.accounts.length === 2 ? "HDFC + ICICI" : input.accounts.join(", ")}`,
+      name: input.name || `${format(parseISO(`${input.period}-01`), "MMMM yyyy")} — ${input.accounts.length === 2 ? "HDFC + ICICI" : input.accounts.map((a) => (a === "acc_hdfc" ? "HDFC" : "ICICI")).join(" + ")}`,
       period: input.period,
       status: "running",
       accounts: input.accounts,
@@ -344,6 +344,7 @@ function evidenceFor(rec: RunRecord, f: FindingRec): EvidenceItem[] {
   const other = (t.source === "bank" ? um.ledger : um.bank).map((x) => x.txn).filter((o) => !seen.has(o.id));
   other
     .map((o) => ({ o, s: sim(o) }))
+    .filter((x) => x.s >= 0.5)
     .sort((a, b) => b.s - a.s)
     .slice(0, 3)
     .forEach(({ o, s }) => {

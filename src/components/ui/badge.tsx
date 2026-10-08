@@ -24,6 +24,7 @@ export type BadgeTone = NonNullable<VariantProps<typeof badgeVariants>["tone"]>;
 
 export interface BadgeProps extends React.HTMLAttributes<HTMLSpanElement>, VariantProps<typeof badgeVariants> {}
 
-export function Badge({ className, tone, ...props }: BadgeProps) {
-  return <span className={cn(badgeVariants({ tone }), className)} {...props} />;
-}
+export const Badge = React.forwardRef<HTMLSpanElement, BadgeProps>(({ className, tone, ...props }, ref) => (
+  <span ref={ref} className={cn(badgeVariants({ tone }), className)} {...props} />
+));
+Badge.displayName = "Badge";

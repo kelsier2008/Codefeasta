@@ -1,34 +1,7 @@
-# Logs
-logs
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-lerna-debug.log*
-
-# Diagnostic reports (https://nodejs.org/api/report.html)
-report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
-
-# Dependencies
-node_modules/
-
-# Production build artifacts
-dist/
-dist-ssr/
-
-# Local env files
+node_modules
+dist
+*.local
 .env
-.env*.local
-
-# Editor and OS files
+coverage
+*.tsbuildinfo
 .DS_Store
-Thumbs.db
-.vscode/*
-!.vscode/extensions.json
-.idea/
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?

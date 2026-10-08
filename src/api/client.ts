@@ -4,6 +4,9 @@ import { useUiStore } from "@/lib/store";
 /** Base URL of the FastAPI backend; empty = same origin (MSW intercepts /api/*). */
 export const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL as string | undefined)?.replace(/\/$/, "") ?? "";
 
+/** Absolute base — same-origin when no backend URL is configured (also needed under Node/jsdom). */
+const base = () => API_BASE_URL || (typeof window !== "undefined" ? window.location.origin : "");
+
 export class ApiError extends Error {
   constructor(
     public status: number,
@@ -24,7 +27,7 @@ export async function request<T>(method: string, path: string, body?: Json | For
     headers["Content-Type"] = "application/json";
     payload = JSON.stringify(body);
   }
-  const res = await fetch(`${API_BASE_URL}/api${path}`, { method, headers, body: payload, ...init });
+  const res = await fetch(`${base()}/api${path}`, { method, headers, body: payload, ...init });
   if (!res.ok) {
     let parsed: ApiErrorBody | null = null;
     try {
@@ -50,7 +53,7 @@ export function streamEvents(path: string, onEvent: (event: string, data: unknow
   const ctrl = new AbortController();
   (async () => {
     try {
-      const res = await fetch(`${API_BASE_URL}/api${path}`, { headers: { Accept: "text/event-stream" }, signal: ctrl.signal });
+      const res = await fetch(`${base()}/api${path}`, { headers: { Accept: "text/event-stream" }, signal: ctrl.signal });
       if (!res.ok || !res.body) throw new ApiError(res.status, null);
       const reader = res.body.getReader();
       const dec = new TextDecoder();
